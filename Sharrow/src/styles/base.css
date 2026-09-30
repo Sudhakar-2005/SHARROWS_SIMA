@@ -1,0 +1,162 @@
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--sh-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--sh-bg);
+    color: var(--sh-text-1);
+    font-family: var(--sh-font-sans);
+    font-size: var(--sh-text-body);
+    line-height: var(--sh-leading-normal);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* Soft ambient light pools — depth without decoration. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: var(--sh-ambient-1), var(--sh-ambient-2);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    background: rgba(91, 140, 255, 0.3);
+    color: var(--sh-text-1);
+  }
+
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--sh-line-focus);
+    outline-offset: 2px;
+    border-radius: var(--sh-radius-sm);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: var(--sh-radius-pill);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 550;
+    letter-spacing: -0.015em;
+    color: var(--sh-text-1);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+@layer utilities {
+  /* ---------- Motion durations ---------- */
+  .dur-micro {
+    transition-duration: var(--sh-motion-micro);
+  }
+  .dur-standard {
+    transition-duration: var(--sh-motion-standard);
+  }
+  .dur-intelligence {
+    transition-duration: var(--sh-motion-intelligence);
+  }
+  .dur-cinematic {
+    transition-duration: var(--sh-motion-cinematic);
+  }
+  .ease-premium {
+    transition-timing-function: var(--sh-ease-premium);
+  }
+
+  /* ---------- Financial numerals ---------- */
+  .num {
+    font-family: var(--sh-font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Surfaces ---------- */
+  .glass {
+    background: var(--sh-surface-glass);
+    border: 1px solid var(--sh-line-glass);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  .sheen {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+}

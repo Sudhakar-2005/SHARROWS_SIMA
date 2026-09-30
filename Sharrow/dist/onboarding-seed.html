@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SHARROW seed</title>
+  </head>
+  <body>
+    <p>SEEDING</p>
+    <script>
+      // Test/automation seed: marks onboarding complete so headless dumps and
+      // screenshots of the shell are not redirected to /onboarding.
+      try {
+        localStorage.setItem(
+          'sharrow-ui',
+          JSON.stringify({
+            state: { sidebarCollapsed: false, onboarded: true, reducedMotion: null },
+            version: 0,
+          }),
+        )
+        document.title = 'SEEDED'
+        document.body.textContent = 'SEEDED'
+      } catch (e) {
+        document.body.textContent = 'SEED FAILED'
+      }
+    </script>
+  </body>
+</html>

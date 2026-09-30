@@ -1,0 +1,98 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './base.css';
+@import './motion.css';
+
+/* =========================================================================
+   Tailwind theme mapping — utilities read design tokens directly so the
+   entire system stays driven by tokens.css.
+   ========================================================================= */
+
+@theme inline {
+  --font-sans: var(--sh-font-sans);
+  --font-mono: var(--sh-font-mono);
+
+  /* Clear the stock palette so the design language cannot drift. */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Environment */
+  --color-bg: var(--sh-bg);
+  --color-bg-elevated: var(--sh-bg-elevated);
+  --color-scrim: var(--sh-scrim);
+  --color-surface-1: var(--sh-surface-1);
+  --color-surface-2: var(--sh-surface-2);
+  --color-surface-3: var(--sh-surface-3);
+  --color-surface-4: var(--sh-surface-4);
+  --color-surface-hover: var(--sh-surface-hover);
+  --color-glass: var(--sh-surface-glass);
+
+  /* Lines */
+  --color-line: var(--sh-line);
+  --color-line-strong: var(--sh-line-strong);
+  --color-line-glass: var(--sh-line-glass);
+  --color-line-focus: var(--sh-line-focus);
+
+  /* Text */
+  --color-ink: var(--sh-text-1);
+  --color-ink-2: var(--sh-text-2);
+  --color-ink-3: var(--sh-text-3);
+  --color-ink-inverse: var(--sh-text-inverse);
+
+  /* Intelligence */
+  --color-accent: var(--sh-accent);
+  --color-accent-strong: var(--sh-accent-strong);
+  --color-accent-2: var(--sh-accent-2);
+  --color-accent-soft: var(--sh-accent-soft);
+  --color-accent-soft-2: var(--sh-accent-soft-2);
+  --color-accent-ring: var(--sh-accent-ring);
+
+  /* Financial semantics */
+  --color-pos: var(--sh-pos);
+  --color-pos-soft: var(--sh-pos-soft);
+  --color-neg: var(--sh-neg);
+  --color-neg-soft: var(--sh-neg-soft);
+  --color-warn: var(--sh-warn);
+  --color-warn-soft: var(--sh-warn-soft);
+  --color-flow: var(--sh-neutral);
+  --color-flow-soft: var(--sh-neutral-soft);
+
+  /* Radius */
+  --radius-sm: var(--sh-radius-sm);
+  --radius-md: var(--sh-radius-md);
+  --radius-lg: var(--sh-radius-lg);
+  --radius-xl: var(--sh-radius-xl);
+
+  /* Depth */
+  --shadow-surface: var(--sh-shadow-surface);
+  --shadow-elevated: var(--sh-shadow-elevated);
+  --shadow-floating: var(--sh-shadow-floating);
+
+  /* Easing */
+  --ease-premium: var(--sh-ease-premium);
+
+  /* Typography scale — shifted down for a dense intelligence workspace */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1.4;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.55;
+  --text-lg: 1rem;
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.125rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 1.375rem;
+  --text-2xl--line-height: 1.25;
+  --text-3xl: 1.75rem;
+  --text-3xl--line-height: 1.15;
+  --text-4xl: 2.125rem;
+  --text-4xl--line-height: 1.1;
+  --text-5xl: 2.75rem;
+  --text-5xl--line-height: 1.05;
+}

@@ -1,0 +1,121 @@
+/* =========================================================================
+   SHARROW DESIGN TOKENS
+   Single source of truth for the visual system.
+   Surfaces are layered (bg → surface → elevated → floating → focused)
+   to create hierarchy without heavy shadows or glass everywhere.
+   ========================================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- Environment ---------- */
+  --sh-bg: #08090c;
+  --sh-bg-elevated: #0a0c11;
+  --sh-scrim: rgba(4, 5, 8, 0.72);
+
+  /* ---------- Layered surfaces ---------- */
+  --sh-surface-1: #0c0e13;
+  --sh-surface-2: #11141b;
+  --sh-surface-3: #171b24;
+  --sh-surface-4: #1d222d;
+  --sh-surface-hover: #191d27;
+  --sh-surface-glass: rgba(19, 23, 32, 0.78);
+
+  /* ---------- Lines ---------- */
+  --sh-line: rgba(255, 255, 255, 0.055);
+  --sh-line-strong: rgba(255, 255, 255, 0.1);
+  --sh-line-glass: rgba(255, 255, 255, 0.08);
+  --sh-line-focus: rgba(91, 140, 255, 0.55);
+
+  /* ---------- Text ---------- */
+  --sh-text-1: #f2f4f8;
+  --sh-text-2: #9ba4b4;
+  --sh-text-3: #7c8496;
+  --sh-text-inverse: #08090c;
+
+  /* ---------- Intelligence identity ---------- */
+  --sh-accent: #5b8cff;
+  --sh-accent-strong: #7ba3ff;
+  --sh-accent-2: #8b7cff;
+  --sh-accent-soft: rgba(91, 140, 255, 0.12);
+  --sh-accent-soft-2: rgba(139, 124, 255, 0.12);
+  --sh-accent-ring: rgba(91, 140, 255, 0.22);
+
+  /* ---------- Financial semantics ---------- */
+  --sh-pos: #35d39a;
+  --sh-pos-soft: rgba(53, 211, 154, 0.12);
+  --sh-neg: #ff6b6b;
+  --sh-neg-soft: rgba(255, 107, 107, 0.12);
+  --sh-warn: #f4b740;
+  --sh-warn-soft: rgba(244, 183, 64, 0.12);
+  --sh-neutral: #8a94a6;
+  --sh-neutral-soft: rgba(138, 148, 166, 0.12);
+
+  /* ---------- Typography ---------- */
+  --sh-font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --sh-font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  --sh-text-display: 1.75rem; /* 28 */
+  --sh-text-h1: 1.375rem; /* 22 */
+  --sh-text-h2: 1.125rem; /* 18 */
+  --sh-text-h3: 0.9375rem; /* 15 */
+  --sh-text-body: 0.875rem; /* 14 */
+  --sh-text-sm: 0.8125rem; /* 13 */
+  --sh-text-caption: 0.75rem; /* 12 */
+  --sh-text-micro: 0.6875rem; /* 11 */
+
+  --sh-leading-tight: 1.2;
+  --sh-leading-snug: 1.35;
+  --sh-leading-normal: 1.55;
+
+  --sh-tracking-wide: 0.06em;
+
+  /* ---------- Radius ---------- */
+  --sh-radius-sm: 8px;
+  --sh-radius-md: 12px;
+  --sh-radius-lg: 16px;
+  --sh-radius-xl: 20px;
+  --sh-radius-pill: 999px;
+
+  /* ---------- Depth (restrained) ---------- */
+  --sh-shadow-surface: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --sh-shadow-elevated: 0 12px 32px -18px rgba(0, 0, 0, 0.85), 0 2px 8px -4px rgba(0, 0, 0, 0.5);
+  --sh-shadow-floating: 0 24px 64px -24px rgba(0, 0, 0, 0.9), 0 4px 16px -8px rgba(0, 0, 0, 0.6);
+  --sh-shadow-focus: 0 0 0 1px var(--sh-line-focus), 0 0 0 4px rgba(91, 140, 255, 0.14);
+
+  /* ---------- Ambient light ---------- */
+  --sh-ambient-1: radial-gradient(1200px 600px at 18% -10%, rgba(91, 140, 255, 0.07), transparent 60%);
+  --sh-ambient-2: radial-gradient(900px 500px at 88% 0%, rgba(139, 124, 255, 0.05), transparent 60%);
+  --sh-glow-accent: 0 0 24px -8px rgba(91, 140, 255, 0.55);
+
+  /* ---------- Motion ---------- */
+  --sh-motion-micro: 140ms;
+  --sh-motion-standard: 260ms;
+  --sh-motion-intelligence: 600ms;
+  --sh-motion-cinematic: 1100ms;
+  --sh-ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --sh-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---------- Layering ---------- */
+  --sh-z-rail: 30;
+  --sh-z-header: 40;
+  --sh-z-drawer: 60;
+  --sh-z-modal: 70;
+  --sh-z-palette: 80;
+  --sh-z-toast: 90;
+
+  /* ---------- Layout ---------- */
+  --sh-header-h: 56px;
+  --sh-sidebar-w: 236px;
+  --sh-sidebar-w-collapsed: 64px;
+  --sh-rail-w: 320px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --sh-motion-micro: 1ms;
+    --sh-motion-standard: 1ms;
+    --sh-motion-intelligence: 1ms;
+    --sh-motion-cinematic: 1ms;
+  }
+}

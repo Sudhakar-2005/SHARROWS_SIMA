@@ -1,0 +1,383 @@
+import type { AssetMeta, MarketEvent, NewsItem, Sector, SectorId } from '@/engine/types'
+import { between, hashString, mulberry32 } from '@/lib/rng'
+
+/**
+ * SHARROW fixture universe.
+ * Every price, fundamental and headline in this file is simulated sample data
+ * used to exercise the system — surfaced in the UI with SIMULATED provenance.
+ */
+
+export const SECTORS: Sector[] = [
+  { id: 'it', name: 'Information Technology', riskBeta: 'structural' },
+  { id: 'banks', name: 'Banking & Financials', riskBeta: 'cyclical' },
+  { id: 'fmcg', name: 'FMCG', riskBeta: 'defensive' },
+  { id: 'auto', name: 'Automobiles', riskBeta: 'cyclical' },
+  { id: 'pharma', name: 'Pharmaceuticals', riskBeta: 'defensive' },
+  { id: 'energy', name: 'Energy & Power', riskBeta: 'cyclical' },
+  { id: 'metals', name: 'Metals & Mining', riskBeta: 'cyclical' },
+  { id: 'infra', name: 'Infrastructure & Capital', riskBeta: 'cyclical' },
+]
+
+export const SECTOR_NAME: Record<SectorId, string> = Object.fromEntries(
+  SECTORS.map((s) => [s.id, s.name]),
+) as Record<SectorId, string>
+
+interface SeedAsset {
+  symbol: string
+  name: string
+  sector: SectorId
+  base: number
+  description: string
+}
+
+const EQUITIES: SeedAsset[] = [
+  { symbol: 'TCS', name: 'Tata Consultancy Services', sector: 'it', base: 4120, description: 'IT services' },
+  { symbol: 'INFY', name: 'Infosys', sector: 'it', base: 1875, description: 'IT services' },
+  { symbol: 'HCLTECH', name: 'HCL Technologies', sector: 'it', base: 1840, description: 'IT services' },
+  { symbol: 'WIPRO', name: 'Wipro', sector: 'it', base: 545, description: 'IT services' },
+  { symbol: 'TECHM', name: 'Tech Mahindra', sector: 'it', base: 1690, description: 'IT services' },
+  { symbol: 'LTIM', name: 'LTIMindtree', sector: 'it', base: 6210, description: 'Digital engineering' },
+
+  { symbol: 'HDFCBANK', name: 'HDFC Bank', sector: 'banks', base: 1685, description: 'Private bank' },
+  { symbol: 'ICICIBANK', name: 'ICICI Bank', sector: 'banks', base: 1245, description: 'Private bank' },
+  { symbol: 'SBIN', name: 'State Bank of India', sector: 'banks', base: 815, description: 'Public sector bank' },
+  { symbol: 'KOTAKBANK', name: 'Kotak Mahindra Bank', sector: 'banks', base: 1760, description: 'Private bank' },
+  { symbol: 'AXISBANK', name: 'Axis Bank', sector: 'banks', base: 1145, description: 'Private bank' },
+  { symbol: 'INDUSINDBK', name: 'IndusInd Bank', sector: 'banks', base: 985, description: 'Private bank' },
+
+  { symbol: 'HINDUNILVR', name: 'Hindustan Unilever', sector: 'fmcg', base: 2480, description: 'Consumer goods' },
+  { symbol: 'ITC', name: 'ITC', sector: 'fmcg', base: 465, description: 'Conglomerate' },
+  { symbol: 'NESTLEIND', name: 'Nestle India', sector: 'fmcg', base: 2510, description: 'Food & beverages' },
+  { symbol: 'BRITANNIA', name: 'Britannia Industries', sector: 'fmcg', base: 5480, description: 'Food' },
+  { symbol: 'DABUR', name: 'Dabur India', sector: 'fmcg', base: 610, description: 'Consumer health' },
+  { symbol: 'MARICO', name: 'Marico', sector: 'fmcg', base: 655, description: 'Personal care' },
+
+  { symbol: 'MARUTI', name: 'Maruti Suzuki India', sector: 'auto', base: 12450, description: 'Passenger vehicles' },
+  { symbol: 'M&M', name: 'Mahindra & Mahindra', sector: 'auto', base: 2980, description: 'UVs & farm equipment' },
+  { symbol: 'TATAMOTORS', name: 'Tata Motors', sector: 'auto', base: 985, description: 'Vehicles' },
+  { symbol: 'BAJAJ-AUTO', name: 'Bajaj Auto', sector: 'auto', base: 9210, description: 'Two-wheelers' },
+  { symbol: 'HEROMOTOCO', name: 'Hero MotoCorp', sector: 'auto', base: 5340, description: 'Two-wheelers' },
+  { symbol: 'EICHERMOT', name: 'Eicher Motors', sector: 'auto', base: 4870, description: 'Vehicles' },
+
+  { symbol: 'SUNPHARMA', name: 'Sun Pharmaceutical', sector: 'pharma', base: 1810, description: 'Specialty pharma' },
+  { symbol: 'DRREDDY', name: "Dr. Reddy's Laboratories", sector: 'pharma', base: 6240, description: 'Generics' },
+  { symbol: 'CIPLA', name: 'Cipla', sector: 'pharma', base: 1520, description: 'Generics' },
+  { symbol: 'LUPIN', name: 'Lupin', sector: 'pharma', base: 2140, description: 'Generics' },
+  { symbol: 'DIVISLAB', name: "Divi's Laboratories", sector: 'pharma', base: 6120, description: 'API manufacturing' },
+  { symbol: 'TORNTPHARM', name: 'Torrent Pharmaceuticals', sector: 'pharma', base: 3320, description: 'Branded pharma' },
+
+  { symbol: 'RELIANCE', name: 'Reliance Industries', sector: 'energy', base: 2940, description: 'Diversified energy' },
+  { symbol: 'ONGC', name: 'Oil & Natural Gas Corp', sector: 'energy', base: 275, description: 'Exploration' },
+  { symbol: 'BPCL', name: 'Bharat Petroleum', sector: 'energy', base: 620, description: 'Refining & marketing' },
+  { symbol: 'POWERGRID', name: 'Power Grid Corp', sector: 'energy', base: 325, description: 'Transmission utility' },
+  { symbol: 'NTPC', name: 'NTPC', sector: 'energy', base: 365, description: 'Power generation' },
+  { symbol: 'GAIL', name: 'GAIL India', sector: 'energy', base: 215, description: 'Gas utilities' },
+
+  { symbol: 'TATASTEEL', name: 'Tata Steel', sector: 'metals', base: 145, description: 'Steel' },
+  { symbol: 'JSWSTEEL', name: 'JSW Steel', sector: 'metals', base: 925, description: 'Steel' },
+  { symbol: 'HINDALCO', name: 'Hindalco Industries', sector: 'metals', base: 665, description: 'Aluminium & copper' },
+  { symbol: 'VEDL', name: 'Vedanta', sector: 'metals', base: 465, description: 'Diversified mining' },
+  { symbol: 'COALINDIA', name: 'Coal India', sector: 'metals', base: 485, description: 'Coal mining' },
+  { symbol: 'NMDC', name: 'NMDC', sector: 'metals', base: 225, description: 'Iron ore' },
+
+  { symbol: 'LT', name: 'Larsen & Toubro', sector: 'infra', base: 3640, description: 'Engineering & construction' },
+  { symbol: 'ADANIPORTS', name: 'Adani Ports & SEZ', sector: 'infra', base: 1420, description: 'Ports & logistics' },
+  { symbol: 'ULTRACEMCO', name: 'UltraTech Cement', sector: 'infra', base: 11250, description: 'Cement' },
+  { symbol: 'SIEMENS', name: 'Siemens India', sector: 'infra', base: 6850, description: 'Industrial automation' },
+  { symbol: 'ABB', name: 'ABB India', sector: 'infra', base: 7420, description: 'Electrification' },
+  { symbol: 'AMBUJACEM', name: 'Ambuja Cements', sector: 'infra', base: 545, description: 'Cement' },
+]
+
+const INDICES: SeedAsset[] = [
+  { symbol: 'NIFTY50', name: 'NIFTY 50', sector: 'infra', base: 24850, description: 'Benchmark index' },
+  { symbol: 'BANKNIFTY', name: 'NIFTY BANK', sector: 'banks', base: 52400, description: 'Banking index' },
+  { symbol: 'NIFTYIT', name: 'NIFTY IT', sector: 'it', base: 43250, description: 'Technology index' },
+]
+
+export const INDEX_SYMBOLS = INDICES.map((i) => i.symbol)
+
+export const ASSETS: AssetMeta[] = [
+  ...INDICES.map(({ symbol, name, sector, description }) => ({
+    symbol,
+    name,
+    sector,
+    kind: 'index' as const,
+    description,
+  })),
+  ...EQUITIES.map(({ symbol, name, sector, description }) => ({
+    symbol,
+    name,
+    sector,
+    kind: 'equity' as const,
+    description,
+  })),
+]
+
+export const ASSET_BY_SYMBOL: Record<string, AssetMeta> = Object.fromEntries(
+  ASSETS.map((a) => [a.symbol, a]),
+)
+
+export const BASE_PRICE: Record<string, number> = Object.fromEntries(
+  [...INDICES, ...EQUITIES].map((a) => [a.symbol, a.base]),
+)
+
+export const EQUITY_SYMBOLS = EQUITIES.map((e) => e.symbol)
+
+/* --------------------------- Portfolio holdings -------------------------- */
+
+export interface Holding {
+  symbol: string
+  quantity: number
+  avgPrice: number
+}
+
+export const PORTFOLIO_HOLDINGS: Holding[] = [
+  { symbol: 'TCS', quantity: 45, avgPrice: 3820 },
+  { symbol: 'HDFCBANK', quantity: 120, avgPrice: 1602 },
+  { symbol: 'RELIANCE', quantity: 60, avgPrice: 2840 },
+  { symbol: 'INFY', quantity: 85, avgPrice: 1785 },
+  { symbol: 'ITC', quantity: 300, avgPrice: 432 },
+  { symbol: 'ICICIBANK', quantity: 140, avgPrice: 1148 },
+  { symbol: 'LT', quantity: 25, avgPrice: 3410 },
+  { symbol: 'SUNPHARMA', quantity: 55, avgPrice: 1662 },
+  { symbol: 'TATAMOTORS', quantity: 160, avgPrice: 940 },
+  { symbol: 'MARUTI', quantity: 8, avgPrice: 11840 },
+  { symbol: 'BHARTIARTL', quantity: 0, avgPrice: 0 },
+  { symbol: 'HINDUNILVR', quantity: 40, avgPrice: 2510 },
+].filter((h) => h.quantity > 0)
+
+export const WATCHLIST_SYMBOLS = [
+  'TCS',
+  'RELIANCE',
+  'HDFCBANK',
+  'LT',
+  'TATAMOTORS',
+  'SUNPHARMA',
+  'M&M',
+  'ICICIBANK',
+]
+
+/* --------------------------------- News --------------------------------- */
+
+export function buildNews(now: number): NewsItem[] {
+  const items: Omit<NewsItem, 'publishedAt'>[] = [
+    {
+      id: 'news-1',
+      headline: 'IT spend recovery broadens as discretionary projects restart',
+      source: 'Market Wire (simulated)',
+      summary:
+        'Commentaries from large-cap IT providers point to a restart in discretionary programmes after two quarters of pause, with banking and retail verticals leading.',
+      sentiment: 'positive',
+      confidence: 74,
+      affectedSymbols: ['TCS', 'INFY', 'HCLTECH', 'LTIM'],
+      affectedSectors: ['it'],
+      marketImpact: 'moderate',
+      portfolioRelevance: 'material',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-2',
+      headline: 'Rate-cut expectations push rate-sensitive names higher',
+      source: 'Macro Desk (simulated)',
+      summary:
+        'Futures pricing implies a earlier easing path, supporting NBFC and real-estate linked baskets while deposit-heavy banks watch margin pressure.',
+      sentiment: 'positive',
+      confidence: 68,
+      affectedSymbols: ['HDFCBANK', 'ICICIBANK', 'AXISBANK', 'INDUSINDBK'],
+      affectedSectors: ['banks'],
+      marketImpact: 'moderate',
+      portfolioRelevance: 'material',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-3',
+      headline: 'Metal prices slip on softer China demand data',
+      source: 'Commodity Tape (simulated)',
+      summary:
+        'Base metal benchmarks retreated after import data missed estimates, weighing on domestic producers with high export exposure.',
+      sentiment: 'negative',
+      confidence: 71,
+      affectedSymbols: ['TATASTEEL', 'JSWSTEEL', 'HINDALCO', 'VEDL'],
+      affectedSectors: ['metals'],
+      marketImpact: 'moderate',
+      portfolioRelevance: 'watch',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-4',
+      headline: 'Pharma names firm up after US generic pricing commentary',
+      source: 'Sector Note (simulated)',
+      summary:
+        'Pricing in the US generics basket showed early stabilization, with companies carrying complex-portfolio pipelines rated relatively better.',
+      sentiment: 'positive',
+      confidence: 66,
+      affectedSymbols: ['SUNPHARMA', 'CIPLA', 'LUPIN', 'DIVISLAB'],
+      affectedSectors: ['pharma'],
+      marketImpact: 'low',
+      portfolioRelevance: 'relevant',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-5',
+      headline: 'Crude eases as supply disruptions ease',
+      source: 'Energy Desk (simulated)',
+      summary:
+        'Benchmarks gave back risk premium as shipping lanes normalized, a net positive for refiners and a mild negative for exploration names.',
+      sentiment: 'neutral',
+      confidence: 63,
+      affectedSymbols: ['BPCL', 'ONGC', 'RELIANCE'],
+      affectedSectors: ['energy'],
+      marketImpact: 'low',
+      portfolioRelevance: 'watch',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-6',
+      headline: 'Passenger vehicle dispatches stay resilient into the festive season',
+      source: 'Auto Tracker (simulated)',
+      summary:
+        'Wholesale dispatches grew sequentially with UVs leading; entry-level segments continue to lag.',
+      sentiment: 'positive',
+      confidence: 70,
+      affectedSymbols: ['MARUTI', 'M&M', 'TATAMOTORS', 'EICHERMOT'],
+      affectedSectors: ['auto'],
+      marketImpact: 'low',
+      portfolioRelevance: 'relevant',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-7',
+      headline: 'Infrastructure awarding momentum holds above trend',
+      source: 'Project Monitor (simulated)',
+      summary:
+        'Central awarding ran above the three-year seasonal average, supporting order-book visibility for large contractors.',
+      sentiment: 'positive',
+      confidence: 72,
+      affectedSymbols: ['LT', 'SIEMENS', 'ABB'],
+      affectedSectors: ['infra'],
+      marketImpact: 'moderate',
+      portfolioRelevance: 'relevant',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-8',
+      headline: 'FMCG volume recovery remains uneven across price points',
+      source: 'Consumer Tape (simulated)',
+      summary:
+        'Rural volumes improved off a low base while urban premium growth slowed, keeping near-term visibility mixed.',
+      sentiment: 'neutral',
+      confidence: 64,
+      affectedSymbols: ['HINDUNILVR', 'ITC', 'DABUR', 'MARICO'],
+      affectedSectors: ['fmcg'],
+      marketImpact: 'low',
+      portfolioRelevance: 'watch',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-9',
+      headline: 'Foreign flows turn net positive for the week',
+      source: 'Flow Tracker (simulated)',
+      summary:
+        'Institutional flows turned positive after three weeks, concentrated in financials and select capital goods.',
+      sentiment: 'positive',
+      confidence: 69,
+      affectedSymbols: ['HDFCBANK', 'ICICIBANK', 'LT', 'ABB'],
+      affectedSectors: ['banks', 'infra'],
+      marketImpact: 'moderate',
+      portfolioRelevance: 'material',
+      provenance: 'simulated',
+    },
+    {
+      id: 'news-10',
+      headline: 'Volatility index cools after event window',
+      source: 'Derivatives Desk (simulated)',
+      summary:
+        'Near-term implied volatility unwound post-event, historically associated with calmer tape conditions for a few sessions.',
+      sentiment: 'positive',
+      confidence: 75,
+      affectedSymbols: ['NIFTY50', 'BANKNIFTY'],
+      affectedSectors: ['banks'],
+      marketImpact: 'moderate',
+      portfolioRelevance: 'relevant',
+      provenance: 'simulated',
+    },
+  ]
+
+  return items.map((item, i) => ({
+    ...item,
+    publishedAt: now - (7 + i * 43) * 60 * 1000,
+  }))
+}
+
+/* ----------------------------- Fundamentals ----------------------------- *
+ * Simulated fundamental snapshot per company — fixture values used to drive
+ * the fundamental signal family. Presented in-product with SIMULATED
+ * provenance; these are not reported financials.
+ * ------------------------------------------------------------------------ */
+
+export interface Fundamental {
+  pe: number
+  pb: number
+  roe: number
+  de: number
+  mcapCr: number
+  divYield: number
+  earningsGrowth: number
+  revenueGrowth: number
+}
+
+const FUNDAMENTAL_RANGES: Record<SectorId, Partial<Record<keyof Fundamental, [number, number]>>> = {
+  it: { pe: [24, 34], pb: [7, 14], roe: [24, 42], de: [0.05, 0.4], divYield: [1, 2.6], earningsGrowth: [6, 18] },
+  banks: { pe: [11, 22], pb: [1.6, 3.4], roe: [12, 19], de: [0, 0], divYield: [0.8, 2.2], earningsGrowth: [8, 22] },
+  fmcg: { pe: [38, 62], pb: [8, 18], roe: [18, 34], de: [0.02, 0.5], divYield: [1.2, 3.2], earningsGrowth: [3, 12] },
+  auto: { pe: [18, 44], pb: [3, 9], roe: [12, 26], de: [0.1, 1.1], divYield: [0.6, 2.4], earningsGrowth: [4, 26] },
+  pharma: { pe: [26, 46], pb: [3.5, 9], roe: [13, 24], de: [0.05, 0.6], divYield: [0.6, 1.8], earningsGrowth: [2, 20] },
+  energy: { pe: [8, 22], pb: [1, 3.2], roe: [9, 22], de: [0.3, 1.6], divYield: [1.5, 4.6], earningsGrowth: [-6, 24] },
+  metals: { pe: [9, 26], pb: [1.4, 4], roe: [8, 24], de: [0.3, 1.5], divYield: [1, 3.6], earningsGrowth: [-20, 34] },
+  infra: { pe: [22, 52], pb: [4, 12], roe: [11, 22], de: [0.4, 1.6], divYield: [0.6, 2], earningsGrowth: [4, 30] },
+}
+
+function buildFundamentals(): Record<string, Fundamental> {
+  const out: Record<string, Fundamental> = {}
+  for (const equity of EQUITIES) {
+    const rng = mulberry32(hashString(`${equity.symbol}-fund`))
+    const r = FUNDAMENTAL_RANGES[equity.sector]
+    const pick = (key: keyof Fundamental, fallback: [number, number], digits = 1) => {
+      const range = r[key] ?? fallback
+      return Number(between(rng, range[0], range[1]).toFixed(digits))
+    }
+    const size =
+      equity.base > 5000
+        ? between(rng, 160_000, 850_000)
+        : equity.base > 1500
+          ? between(rng, 45_000, 320_000)
+          : between(rng, 8_000, 120_000)
+    out[equity.symbol] = {
+      pe: pick('pe', [15, 35]),
+      pb: pick('pb', [1, 6]),
+      roe: pick('roe', [10, 25]),
+      de: pick('de', [0.1, 1]),
+      mcapCr: Math.round(size),
+      divYield: pick('divYield', [0.5, 3], 2),
+      earningsGrowth: pick('earningsGrowth', [0, 20]),
+      revenueGrowth: pick('earningsGrowth', [2, 18]),
+    }
+  }
+  return out
+}
+
+export const FUNDAMENTALS: Record<string, Fundamental> = buildFundamentals()
+
+/* ------------------------------ Market events ---------------------------- */
+
+export function buildEvents(now: number): MarketEvent[] {
+  const day = 86_400_000
+  return [
+    { id: 'ev-1', date: now - 4 * day, label: 'IT large-cap earnings', kind: 'earnings', symbols: ['TCS', 'INFY'] },
+    { id: 'ev-2', date: now - 2 * day, label: 'Policy rate decision', kind: 'policy', symbols: ['NIFTY50', 'BANKNIFTY'] },
+    { id: 'ev-3', date: now - 1 * day, label: 'Inflation print', kind: 'macro', symbols: ['NIFTY50'] },
+    { id: 'ev-4', date: now + 3 * day, label: 'Auto monthly dispatches', kind: 'macro', symbols: ['MARUTI', 'M&M'] },
+    { id: 'ev-5', date: now + 6 * day, label: 'Banking results window', kind: 'earnings', symbols: ['HDFCBANK', 'ICICIBANK'] },
+    { id: 'ev-6', date: now + 9 * day, label: 'Infra order updates', kind: 'corporate', symbols: ['LT'] },
+  ]
+}
